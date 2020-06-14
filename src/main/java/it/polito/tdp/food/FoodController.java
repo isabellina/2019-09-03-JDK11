@@ -5,8 +5,15 @@
 package it.polito.tdp.food;
 
 import java.net.URL;
+import java.util.LinkedList;
 import java.util.ResourceBundle;
+
+import com.sun.tools.javac.util.List;
+
 import it.polito.tdp.food.model.Model;
+import it.polito.tdp.food.model.PorzionePeso;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -40,7 +47,7 @@ public class FoodController {
     private Button btnCammino; // Value injected by FXMLLoader
 
     @FXML // fx:id="boxPorzioni"
-    private ComboBox<?> boxPorzioni; // Value injected by FXMLLoader
+    private ComboBox<String> boxPorzioni; // Value injected by FXMLLoader
 
     @FXML // fx:id="txtResult"
     private TextArea txtResult; // Value injected by FXMLLoader
@@ -49,12 +56,28 @@ public class FoodController {
     void doCammino(ActionEvent event) {
     	txtResult.clear();
     	txtResult.appendText("Cerco cammino peso massimo...");
+    	try{
+    		int passi = Integer.parseInt(txtPassi.getText());
+    	}
+    	catch(NumberFormatException n) {
+    		txtResult.appendText("Devi inserire un numero");
+    	}
     }
 
     @FXML
     void doCorrelate(ActionEvent event) {
     	txtResult.clear();
-    	txtResult.appendText("Cerco porzioni correlate...");
+    	txtResult.appendText("CPorzionePesoi correlate...");
+    	LinkedList<PorzionePeso> l = new LinkedList<PorzionePeso>(this.model.getVerticiConnessi(boxPorzioni.getValue()));
+    	if(l.size()==0) {
+    		txtResult.appendText("Non ci sono connessi");
+    	}
+    	else {
+    		for(PorzionePeso p : l) {
+    			txtResult.appendText(p + "\n");
+    		}
+    	}
+    	
     	
     }
 
@@ -62,6 +85,20 @@ public class FoodController {
     void doCreaGrafo(ActionEvent event) {
     	txtResult.clear();
     	txtResult.appendText("Creazione grafo...");
+    	try{
+    		int calorie = Integer.parseInt(txtCalorie.getText());
+    		this.model.creaGrafo(calorie);
+    		System.out.println("Numero vertici : " + this.model.nVertici());
+    		System.out.println("Numero archi : " + this.model.nArchi()); 
+    		txtResult.appendText("Numero vertici : " + this.model.nVertici() + "\n");
+    		txtResult.appendText("Numero archi : " + this.model.nArchi()); 
+    		ObservableList<String> porzioni = FXCollections.observableList(this.model.tendina(calorie));
+        	boxPorzioni.setItems(porzioni);
+        	boxPorzioni.setValue(porzioni.get(0));
+    		}
+    	catch(NumberFormatException n) {
+    		txtResult.appendText("Devi inserire un numero");
+    	}
     	
     }
 
